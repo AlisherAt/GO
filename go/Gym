@@ -1,0 +1,204 @@
+Gym
+
+import (
+	"fmt"
+)
+
+// Member interface
+type Member interface {
+	GetDetails() string
+	GetType() string
+}
+
+// BasicMember struct
+type BasicMember struct {
+	ID          uint64
+	Name        string
+	Age         int
+	Membership  string
+	MonthlyFee  float64
+}
+
+// PremiumMember struct
+type PremiumMember struct {
+	ID           uint64
+	Name         string
+	Age          int
+	Membership   string
+	MonthlyFee   float64
+	Trainer      bool
+	PoolAccess   bool
+	SpaAccess    bool
+}
+
+// Gym struct with map of members
+type Gym struct {
+	Members map[uint64]Member
+}
+
+// Initialize new gym
+func NewGym() *Gym {
+	return &Gym{
+		Members: make(map[uint64]Member),
+	}
+}
+
+// Methods for BasicMember
+func (bm BasicMember) GetDetails() string {
+	return fmt.Sprintf("ID: %d, Name: %s, Age: %d, Type: Basic, Fee: $%.2f",
+		bm.ID, bm.Name, bm.Age, bm.MonthlyFee)
+}
+
+func (bm BasicMember) GetType() string {
+	return "Basic"
+}
+
+// Methods for PremiumMember
+func (pm PremiumMember) GetDetails() string {
+	features := ""
+	if pm.Trainer {
+		features += "Personal Trainer, "
+	}
+	if pm.PoolAccess {
+		features += "Pool Access, "
+	}
+	if pm.SpaAccess {
+		features += "Spa Access"
+	}
+	
+	if features == "" {
+		features = "No additional features"
+	}
+	
+	return fmt.Sprintf("ID: %d, Name: %s, Age: %d, Type: Premium, Fee: $%.2f, Features: %s",
+		pm.ID, pm.Name, pm.Age, pm.MonthlyFee, features)
+}
+
+func (pm PremiumMember) GetType() string {
+	return "Premium"
+}
+
+// AddMember adds a new member to the gym
+func (g *Gym) AddMember(member Member) {
+	switch m := member.(type) {
+	case BasicMember:
+		g.Members[m.ID] = m
+		fmt.Printf("Basic member %s added successfully!\n", m.Name)
+	case PremiumMember:
+		g.Members[m.ID] = m
+		fmt.Printf("Premium member %s added successfully!\n", m.Name)
+	}
+}
+
+// ListMembers displays all members
+func (g *Gym) ListMembers() {
+	fmt.Println("\n=== Gym Members ===")
+	if len(g.Members) == 0 {
+		fmt.Println("No members registered.")
+		return
+	}
+	
+	basicCount := 0
+	premiumCount := 0
+	
+	for _, member := range g.Members {
+		fmt.Println(member.GetDetails())
+		
+		if member.GetType() == "Basic" {
+			basicCount++
+		} else {
+			premiumCount++
+		}
+	}
+	
+	fmt.Printf("\n=== Summary ===\n")
+	fmt.Printf("Total Members: %d\n", len(g.Members))
+	fmt.Printf("Basic Members: %d\n", basicCount)
+	fmt.Printf("Premium Members: %d\n", premiumCount)
+}
+
+// RunGymSystem provides console interaction
+func RunGymSystem() {
+	gym := NewGym()
+	gym.AddMember(BasicMember{
+		ID:         1,
+		Name:       "John Doe",
+		Age:        25,
+		Membership: "Monthly",
+		MonthlyFee: 50.00,
+	})
+	
+	gym.AddMember(PremiumMember{
+		ID:         2,
+		Name:       "Jane Smith",
+		Age:        30,
+		Membership: "Annual",
+		MonthlyFee: 100.00,
+		Trainer:    true,
+		PoolAccess: true,
+		SpaAccess:  false,
+	})
+	
+	for {
+		fmt.Println("\n=== Gym Membership Management ===")
+		fmt.Println("1. Add Basic Member")
+		fmt.Println("2. Add Premium Member")
+		fmt.Println("3. List All Members")
+		fmt.Println("4. Exit to Main Menu")
+		fmt.Print("Enter choice: ")
+		
+		var choice string
+		fmt.Scan(&choice)
+		
+		switch choice {
+		case "1":
+			var member BasicMember
+			fmt.Print("Enter member ID: ")
+			fmt.Scan(&member.ID)
+			fmt.Print("Enter name: ")
+			fmt.Scan(&member.Name)
+			fmt.Print("Enter age: ")
+			fmt.Scan(&member.Age)
+			fmt.Print("Enter monthly fee: ")
+			fmt.Scan(&member.MonthlyFee)
+			
+			gym.AddMember(member)
+			
+		case "2":
+			var member PremiumMember
+			fmt.Print("Enter member ID: ")
+			fmt.Scan(&member.ID)
+			fmt.Print("Enter name: ")
+			fmt.Scan(&member.Name)
+			fmt.Print("Enter age: ")
+			fmt.Scan(&member.Age)
+			fmt.Print("Enter monthly fee: ")
+			fmt.Scan(&member.MonthlyFee)
+			
+			var trainer, pool, spa string
+			fmt.Print("Include personal trainer? (yes/no): ")
+			fmt.Scan(&trainer)
+			member.Trainer = (trainer == "yes" || trainer == "y")
+			
+			fmt.Print("Include pool access? (yes/no): ")
+			fmt.Scan(&pool)
+			member.PoolAccess = (pool == "yes" || pool == "y")
+			
+			fmt.Print("Include spa access? (yes/no): ")
+			fmt.Scan(&spa)
+			member.SpaAccess = (spa == "yes" || spa == "y")
+			
+			gym.AddMember(member)
+			
+		case "3":
+			gym.ListMembers()
+			
+		case "4":
+			fmt.Println("Returning to main menu...")
+			return
+			
+		default:
+			fmt.Println("Invalid choice!")
+		}
+	}
+}

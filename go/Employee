@@ -1,0 +1,157 @@
+Employee
+
+import (
+	"fmt"
+)
+
+// Employee interface
+type Employee interface {
+	CalculateSalary() float64
+	GetWorkHours() int
+	CalculateBonus() float64
+}
+
+// FullTime employee struct
+type FullTime struct {
+	MonthlySalary float64
+	BonusRate     float64
+}
+
+// PartTime employee struct
+type PartTime struct {
+	HourlyRate   float64
+	HoursWorked int
+}
+
+// Contractor employee struct
+type Contractor struct {
+	ProjectRate        float64
+	ProjectsCompleted int
+}
+
+// Intern employee struct
+type Intern struct {
+	DailyRate   float64
+	DaysWorked int
+}
+
+// Methods for FullTime
+func (ft FullTime) CalculateSalary() float64 {
+	return ft.MonthlySalary
+}
+
+func (ft FullTime) GetWorkHours() int {
+	return 160 
+}
+
+func (ft FullTime) CalculateBonus() float64 {
+	return ft.MonthlySalary * ft.BonusRate
+}
+
+// Methods for PartTime
+func (pt PartTime) CalculateSalary() float64 {
+	return pt.HourlyRate * float64(pt.HoursWorked)
+}
+
+func (pt PartTime) GetWorkHours() int {
+	return pt.HoursWorked
+}
+
+func (pt PartTime) CalculateBonus() float64 {
+	// Bonus based on hours worked
+	if pt.HoursWorked > 80 {
+		return pt.CalculateSalary() * 0.10
+	}
+	return 0
+}
+
+// Methods for Contractor
+func (c Contractor) CalculateSalary() float64 {
+	return c.ProjectRate * float64(c.ProjectsCompleted)
+}
+
+func (c Contractor) GetWorkHours() int {
+	return c.ProjectsCompleted * 20 
+}
+
+func (c Contractor) CalculateBonus() float64 {
+	// Bonus for completing more than 5 projects
+	if c.ProjectsCompleted > 5 {
+		return float64(c.ProjectsCompleted-5) * 100
+	}
+	return 0
+}
+
+// Methods for Intern
+func (i Intern) CalculateSalary() float64 {
+	return i.DailyRate * float64(i.DaysWorked)
+}
+
+func (i Intern) GetWorkHours() int {
+	return i.DaysWorked * 8
+}
+
+func (i Intern) CalculateBonus() float64 {
+	// Interns get a fixed bonus if they work more than 15 days
+	if i.DaysWorked > 15 {
+		return 200.00
+	}
+	return 0
+}
+
+// RunEmployeeSystem demonstrates the employee system
+func RunEmployeeSystem() {
+	employees := []Employee{
+		FullTime{MonthlySalary: 5000.00, BonusRate: 0.15},
+		PartTime{HourlyRate: 25.00, HoursWorked: 100},
+		Contractor{ProjectRate: 1000.00, ProjectsCompleted: 7},
+		Intern{DailyRate: 50.00, DaysWorked: 20},
+		FullTime{MonthlySalary: 6000.00, BonusRate: 0.20},
+	}
+	
+	fmt.Println("\n=== Employee Salary Report ===")
+	fmt.Println("==================================")
+	
+	totalPayroll := 0.0
+	totalBonuses := 0.0
+	
+	// Using loops to iterate through the slice
+	for i, emp := range employees {
+		salary := emp.CalculateSalary()
+		bonus := emp.CalculateBonus()
+		hours := emp.GetWorkHours()
+		
+		totalPayroll += salary
+		totalBonuses += bonus
+		
+		fmt.Printf("Employee %d:\n", i+1)
+		
+		// Type assertion to show specific details
+		switch e := emp.(type) {
+		case FullTime:
+			fmt.Printf("  Type: Full-Time\n")
+			fmt.Printf("  Monthly Salary: $%.2f\n", e.MonthlySalary)
+		case PartTime:
+			fmt.Printf("  Type: Part-Time\n")
+			fmt.Printf("  Hourly Rate: $%.2f, Hours: %d\n", e.HourlyRate, e.HoursWorked)
+		case Contractor:
+			fmt.Printf("  Type: Contractor\n")
+			fmt.Printf("  Project Rate: $%.2f, Projects: %d\n", e.ProjectRate, e.ProjectsCompleted)
+		case Intern:
+			fmt.Printf("  Type: Intern\n")
+			fmt.Printf("  Daily Rate: $%.2f, Days: %d\n", e.DailyRate, e.DaysWorked)
+		}
+		
+		fmt.Printf("  Work Hours: %d\n", hours)
+		fmt.Printf("  Base Salary: $%.2f\n", salary)
+		fmt.Printf("  Bonus: $%.2f\n", bonus)
+		fmt.Printf("  Total Compensation: $%.2f\n", salary+bonus)
+		fmt.Println("----------------------------------")
+	}
+	
+	fmt.Printf("\n=== Summary ===\n")
+	fmt.Printf("Total Employees: %d\n", len(employees))
+	fmt.Printf("Total Payroll: $%.2f\n", totalPayroll)
+	fmt.Printf("Total Bonuses: $%.2f\n", totalBonuses)
+	fmt.Printf("Grand Total: $%.2f\n", totalPayroll+totalBonuses)
+}

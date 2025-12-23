@@ -1,0 +1,145 @@
+Hotel
+
+import (
+	"fmt"
+	"strconv"
+)
+
+// Room struct definition
+type Room struct {
+	RoomNumber     string
+	Type           string
+	PricePerNight  float64
+	IsOccupied     bool
+}
+
+// Hotel struct with map of rooms
+type Hotel struct {
+	Rooms map[string]Room
+}
+
+// Initialize a new hotel
+func NewHotel() *Hotel {
+	return &Hotel{
+		Rooms: make(map[string]Room),
+	}
+}
+
+// AddRoom adds a new room to the hotel
+func (h *Hotel) AddRoom(roomNumber, roomType string, price float64) {
+	h.Rooms[roomNumber] = Room{
+		RoomNumber:    roomNumber,
+		Type:          roomType,
+		PricePerNight: price,
+		IsOccupied:    false,
+	}
+	fmt.Printf("Room %s added successfully!\n", roomNumber)
+}
+
+// CheckIn checks a guest into a room
+func (h *Hotel) CheckIn(roomNumber string) {
+	if room, exists := h.Rooms[roomNumber]; exists {
+		if !room.IsOccupied {
+			room.IsOccupied = true
+			h.Rooms[roomNumber] = room
+			fmt.Printf("Checked into room %s successfully!\n", roomNumber)
+		} else {
+			fmt.Printf("Room %s is already occupied!\n", roomNumber)
+		}
+	} else {
+		fmt.Printf("Room %s does not exist!\n", roomNumber)
+	}
+}
+
+// CheckOut checks a guest out of a room
+func (h *Hotel) CheckOut(roomNumber string) {
+	if room, exists := h.Rooms[roomNumber]; exists {
+		if room.IsOccupied {
+			room.IsOccupied = false
+			h.Rooms[roomNumber] = room
+			fmt.Printf("Checked out of room %s successfully!\n", roomNumber)
+		} else {
+			fmt.Printf("Room %s is already vacant!\n", roomNumber)
+		}
+	} else {
+		fmt.Printf("Room %s does not exist!\n", roomNumber)
+	}
+}
+
+// ListVacantRooms displays all available rooms
+func (h *Hotel) ListVacantRooms() {
+	fmt.Println("\n=== Vacant Rooms ===")
+	found := false
+	for _, room := range h.Rooms {
+		if !room.IsOccupied {
+			fmt.Printf("Room %s - Type: %s - Price: $%.2f per night\n",
+				room.RoomNumber, room.Type, room.PricePerNight)
+			found = true
+		}
+	}
+	if !found {
+		fmt.Println("No vacant rooms available.")
+	}
+	fmt.Println("=====================")
+}
+
+// RunHotelSystem provides console interaction
+func RunHotelSystem() {
+	hotel := NewHotel()
+	
+	hotel.AddRoom("101", "Standard", 100.00)
+	hotel.AddRoom("102", "Standard", 100.00)
+	hotel.AddRoom("201", "Deluxe", 150.00)
+	hotel.AddRoom("202", "Deluxe", 150.00)
+	hotel.AddRoom("301", "Suite", 250.00)
+	
+	for {
+		fmt.Println("\n=== Hotel Reservation System ===")
+		fmt.Println("1. Add Room")
+		fmt.Println("2. Check In")
+		fmt.Println("3. Check Out")
+		fmt.Println("4. List Vacant Rooms")
+		fmt.Println("5. Exit to Main Menu")
+		fmt.Print("Enter choice: ")
+		
+		var choice string
+		fmt.Scan(&choice)
+		
+		switch choice {
+		case "1":
+			var roomNumber, roomType string
+			var price float64
+			
+			fmt.Print("Enter room number: ")
+			fmt.Scan(&roomNumber)
+			fmt.Print("Enter room type: ")
+			fmt.Scan(&roomType)
+			fmt.Print("Enter price per night: ")
+			fmt.Scan(&price)
+			
+			hotel.AddRoom(roomNumber, roomType, price)
+			
+		case "2":
+			var roomNumber string
+			fmt.Print("Enter room number to check in: ")
+			fmt.Scan(&roomNumber)
+			hotel.CheckIn(roomNumber)
+			
+		case "3":
+			var roomNumber string
+			fmt.Print("Enter room number to check out: ")
+			fmt.Scan(&roomNumber)
+			hotel.CheckOut(roomNumber)
+			
+		case "4":
+			hotel.ListVacantRooms()
+			
+		case "5":
+			fmt.Println("Returning to main menu...")
+			return
+			
+		default:
+			fmt.Println("Invalid choice!")
+		}
+	}
+}
